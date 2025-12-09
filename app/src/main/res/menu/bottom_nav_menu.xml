@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_discussions"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="Discussions" />
+
+    <item
+        android:id="@+id/navigation_groups"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Groupes" />
+
+    <item
+        android:id="@+id/navigation_friends"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Amis" />
+
+</menu>
