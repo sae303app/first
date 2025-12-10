@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     case "CREATE_GROUP":
                         if (currentFragment instanceof GroupsFragment) {
                             String groupName = (parts.length > 2) ? parts[2] : "Nouveau Groupe";
-                            ((GroupsFragment) currentFragment).displayGroupsList(new String[]{groupName});
+                            ((GroupsFragment) currentFragment).addGroupToList(groupName);
                         }
                         break;
                     case "MSG":
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                     case "GET_HISTORY":
                         if (currentFragment instanceof ChatFragment) {
                             List<ChatMessage> messages = new ArrayList<>();
-                            if (parts.length > 2) {
+                            if (parts.length > 2 && !parts[2].isEmpty()) {
                                 String[] allMessages = parts[2].split("\\|");
                                 for (String msg : allMessages) {
                                     String[] msgParts = msg.split(":", 2);
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static class ClientUDP implements Runnable {
-        private static final int SERVER_PORT = 6050;
+        private static final int SERVER_PORT = 6090;
         private DatagramSocket socket;
         private InetAddress address;
         private volatile boolean running = true;

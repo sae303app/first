@@ -15,11 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class GroupsFragment extends Fragment {
 
     private EditText editGroupName;
     private Button buttonCreateGroup, buttonRefreshGroups;
     private LinearLayout groupsContainer;
+    private final Set<String> displayedGroups = new HashSet<>();
 
     @Nullable
     @Override
@@ -35,7 +39,6 @@ public class GroupsFragment extends Fragment {
             String groupName = editGroupName.getText().toString().trim();
             if (!groupName.isEmpty()) {
                 sendUdpCommand("CREATE_GROUP;" + getPseudo() + ";" + groupName, "Demande de création de groupe envoyée.");
-                editGroupName.setText("");
             }
         });
 
@@ -49,35 +52,57 @@ public class GroupsFragment extends Fragment {
     public void displayGroupsList(String[] groupNames) {
         if (getContext() == null) return;
         groupsContainer.removeAllViews();
+        displayedGroups.clear();
+
         if (groupNames.length == 0 || (groupNames.length == 1 && groupNames[0].isEmpty())) {
-            addInfoTextView(groupsContainer, "Vous n'êtes dans aucun groupe.");
+            addInfoTextView(groupsContainer, "Vous n\'êtes dans aucun groupe.");
             return;
         }
 
-        LayoutInflater inflater = LayoutInflater.from(getContext());
         for (String groupName : groupNames) {
-            View groupView = inflater.inflate(R.layout.item_group, groupsContainer, false);
-            ((TextView) groupView.findViewById(R.id.textGroupName)).setText(groupName);
-            groupView.findViewById(R.id.buttonAddMember).setOnClickListener(v -> showAddMemberDialog(groupName));
-            groupView.setOnClickListener(v -> {
-                ((MainActivity) getActivity()).openChat(groupName);
-            });
-            groupsContainer.addView(groupView);
+            addGroupToList(groupName);
         }
     }
+    
+    public void addGroupToList(String groupName) {
+        if (getContext() == null || !displayedGroups.add(groupName)) {
+            return; // Ne pas ajouter si le fragment n'est pas attaché ou si le groupe est déjà affiché
+        }
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View groupItemView = inflater.inflate(R.layout.item_group, groupsContainer, false);
+
+        TextView textGroupName = groupItemView.findViewById(R.id.textGroupName);
+        Button buttonAddMember = groupItemView.findViewById(R.id.buttonAddMember);
+
+        textGroupName.setText(groupName);
+
+        buttonAddMember.setOnClickListener(v -> {
+            showAddMemberDialog(groupName);
+        });
+        
+        groupItemView.setOnClickListener(v -> {
+            ((MainActivity) getActivity()).openChat(groupName);
+        });
+
+        groupsContainer.addView(groupItemView, 0); 
+        editGroupName.setText("");
+    }
+
 
     private void showAddMemberDialog(String groupName) {
         if (getContext() == null) return;
+
         final EditText input = new EditText(getContext());
         input.setHint("Pseudo de l'ami à ajouter");
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Ajouter à " + groupName)
+                .setTitle("Ajouter un membre à " + groupName)
                 .setView(input)
                 .setPositiveButton("Ajouter", (dialog, which) -> {
                     String friendName = input.getText().toString().trim();
                     if (!friendName.isEmpty()) {
-                        sendUdpCommand("ADD_TO_GROUP;" + groupName + ";" + friendName, "Demande d'ajout envoyée.");
+                        sendUdpCommand("ADD_TO_GROUP;" + groupName + ";" + friendName, "Demande d'ajout de " + friendName + " envoyée.");
                     }
                 })
                 .setNegativeButton("Annuler", null)
@@ -88,7 +113,9 @@ public class GroupsFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
             activity.sendUdpMessage(command);
-            Toast.makeText(getContext(), toastMessage, Toast.LENGTH_SHORT).show();
+            if (toastMessage != null) {
+                Toast.makeText(getContext(), toastMessage, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -96,7 +123,7 @@ public class GroupsFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         return (activity != null) ? activity.userPseudo : null;
     }
-    
+
     private void addInfoTextView(LinearLayout container, String text) {
         TextView infoView = new TextView(getContext());
         infoView.setText(text);

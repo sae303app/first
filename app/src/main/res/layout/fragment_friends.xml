@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Actualiser la liste d'amis" />
-        
+
     <LinearLayout
         android:id="@+id/friendsContainer"
         android:layout_width="match_parent"

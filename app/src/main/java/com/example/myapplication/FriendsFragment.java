@@ -88,13 +88,14 @@ public class FriendsFragment extends Fragment {
         for (String friendName : friends) {
             View friendView = inflater.inflate(R.layout.item_friend, friendsContainer, false);
             ((TextView) friendView.findViewById(R.id.textFriendName)).setText(friendName);
+
+            friendView.setOnClickListener(v -> {
+                ((MainActivity) getActivity()).openChat(friendName);
+            });
+
             friendView.findViewById(R.id.buttonDeleteFriend).setOnClickListener(v -> {
                 sendUdpCommand("DEL_AMI;" + getPseudo() + ";" + friendName, "Ami supprimé.");
                 friendView.setVisibility(View.GONE);
-            });
-            // Add a click listener to the friend item to start a chat
-            friendView.setOnClickListener(v -> {
-                ((MainActivity) getActivity()).openChat(friendName);
             });
             friendsContainer.addView(friendView);
         }

@@ -2,6 +2,9 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -9,6 +12,7 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,6 +39,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             chatId = getArguments().getString(ARG_CHAT_ID);
         }
@@ -47,6 +52,7 @@ public class ChatFragment extends Fragment {
 
         Toolbar toolbar = view.findViewById(R.id.chatToolbar);
         toolbar.setTitle(chatId);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         chatRecyclerView = view.findViewById(R.id.chatRecyclerView);
@@ -56,53 +62,71 @@ public class ChatFragment extends Fragment {
 
         EditText editChatMessage = view.findViewById(R.id.editChatMessage);
         Button buttonSendMessage = view.findViewById(R.id.buttonSendMessage);
-        Button buttonRefreshChat = view.findViewById(R.id.buttonRefreshChat);
 
         buttonSendMessage.setOnClickListener(v -> {
             String message = editChatMessage.getText().toString().trim();
             if (!message.isEmpty()) {
                 MainActivity activity = (MainActivity) getActivity();
                 if (activity != null && activity.userPseudo != null) {
+                    // Le format de MSG est bon, on n'y touche pas
                     String command = "MSG;" + activity.userPseudo + ";" + chatId + ";" + message;
                     activity.sendUdpMessage(command);
                     editChatMessage.setText("");
-                    // Le message ne s'affiche plus ici pour éviter les doublons.
-                    // Il s'affichera à la réception de la confirmation du serveur.
                 }
             }
         });
 
-        // Le bouton Actualiser demande l'historique complet
-        buttonRefreshChat.setOnClickListener(v -> {
-             MainActivity activity = (MainActivity) getActivity();
-            if (activity != null && activity.userPseudo != null) {
-                String command = "GET_HISTORY;" + activity.userPseudo + ";" + chatId;
-                activity.sendUdpMessage(command);
-            }
-        });
+        // On demande l'historique dès qu'on ouvre le chat
+        requestHistory();
 
         return view;
     }
 
-    // Méthode pour afficher tout l'historique
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.chat_toolbar_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_refresh_chat) {
+            requestHistory(); // Le bouton "Actualiser" utilise la même logique
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void requestHistory() {
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity != null && activity.userPseudo != null) {
+            // C'est ici qu'on envoie la BONNE commande
+            String command = "GET_HISTORY;" + activity.userPseudo + ";" + chatId;
+            activity.sendUdpMessage(command);
+        }
+    }
+
     public void displayMessages(List<ChatMessage> messages) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                chatAdapter.clearMessages(); // On vide l'écran
+                chatAdapter.clearMessages();
                 for (ChatMessage message : messages) {
-                    chatAdapter.addMessage(message); // On ajoute chaque message de l'historique
+                    chatAdapter.addMessage(message);
                 }
-                chatRecyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                if (chatAdapter.getItemCount() > 0) {
+                    chatRecyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                }
             });
         }
     }
 
-    // Méthode pour ajouter un seul nouveau message (confirmation d'envoi ou réception)
     public void addMessageToChat(ChatMessage message) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 chatAdapter.addMessage(message);
-                chatRecyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                if (chatAdapter.getItemCount() > 0) {
+                    chatRecyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                }
             });
         }
     }
