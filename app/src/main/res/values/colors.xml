@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- App Main Palette -->
+    <color name="md_theme_primary">#2A9DF4</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_secondary">#4CAF50</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_error">#B00020</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+
+    <!-- Light Theme -->
+    <color name="md_theme_background_light">#F5F5F5</color>
+    <color name="md_theme_surface_light">#FFFFFF</color>
+    <color name="md_theme_onBackground_light">#111111</color>
+    <color name="md_theme_onSurface_light">#111111</color>
+    <color name="md_theme_bubble_received_light">#FFFFFF</color>
+
+    <!-- Dark Theme -->
+    <color name="md_theme_background_dark">#121212</color>
+    <color name="md_theme_surface_dark">#1E1E1E</color>
+    <color name="md_theme_onBackground_dark">#FFFFFF</color>
+    <color name="md_theme_onSurface_dark">#FFFFFF</color>
+    <color name="md_theme_bubble_received_dark">#2C2C2C</color>
 </resources>
