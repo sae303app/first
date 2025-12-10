@@ -145,12 +145,18 @@ public class MainActivity extends AppCompatActivity {
                         if (currentFragment instanceof FriendsFragment) {
                             String[] friends = (parts.length > 2) ? parts[2].split(",") : new String[0];
                             ((FriendsFragment) currentFragment).displayFriendsList(friends);
+                        } else if (currentFragment instanceof DiscussionsFragment) {
+                            String[] friends = (parts.length > 2) ? parts[2].split(",") : new String[0];
+                            ((DiscussionsFragment) currentFragment).displayPrivateDiscussions(friends);
                         }
                         break;
                     case "GET_GROUPS":
                         if (currentFragment instanceof GroupsFragment) {
                             String[] groups = (parts.length > 2) ? parts[2].split(",") : new String[0];
                             ((GroupsFragment) currentFragment).displayGroupsList(groups);
+                        } else if (currentFragment instanceof DiscussionsFragment) {
+                            String[] groups = (parts.length > 2) ? parts[2].split(",") : new String[0];
+                            ((DiscussionsFragment) currentFragment).displayGroupDiscussions(groups);
                         }
                         break;
                     case "GET_REQUESTS":
